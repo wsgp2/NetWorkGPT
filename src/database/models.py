@@ -49,7 +49,7 @@ class User(Base):
     # Токены авторизации для Google API
     google_token = Column(Text, nullable=True)
     google_refresh_token = Column(String(255), nullable=True)
-    token_expiry = Column(DateTime, nullable=True)
+    token_expiry = Column(DateTime, nullable=True)  # Время истечения токена доступа Google OAuth
     
     # Настройки пользователя
     settings = Column(Text, nullable=True)  # JSON с настройками
