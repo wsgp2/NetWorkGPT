@@ -1,0 +1,37 @@
+# Конфиденциальные данные
+.env
+*.env
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+.env/
+
+# Дистрибутивы
+dist/
+build/
+*.egg-info/
+
+# Логи
+*.log
+
+# Базы данных SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# Файлы IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Временные файлы ОС
+.DS_Store
+.Thumbs.db
