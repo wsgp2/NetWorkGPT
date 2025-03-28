@@ -3,40 +3,44 @@
 # API ключи
 api_keys:
   # Токен телеграм бота (BotFather)
-  telegram_token: "7941346365:AAGEheBSAur0VuezWTVjJktOnCH5gVmRpZw"
+  # Исправляется конфигурация файла, чтобы удалить секретные ключи Google OAuth и заменить их на пустые строки с комментариями о необходимости загрузки из переменных окружения
+  telegram_token: ""
 
 # Настройки бота
 bot:
   # Приветственное сообщение при запуске бота
   welcome_message: "Добро пожаловать в NetWorkGPT! Я помогу вам управлять контактами и синхронизировать их с Google."
   # Список ID администраторов (опционально)
-  admin_ids: []
+  admin_ids:
+    - 531712920  # @sergei_dyshkant
 
 # Настройки синхронизации
 sync:
   # Интервал автоматической синхронизации в минутах
-  interval: 1440
-  # Максимальное количество контактов для синхронизации
-  max_contacts: 1000
+  interval: 24
+  # Максимальное количество контактов для синхронизации (0 - без ограничений)
+  max_contacts: 0
   # Размер пакета для обработки контактов
-  batch_size: 100
-  # Включить автоматическую синхронизацию
-  auto_sync: false
+  batch_size: 50
+  # Автоматическая синхронизация после авторизации
+  auto_sync: true
   # Поля для синхронизации
   fields:
-    - "name"
-    - "email"
-    - "phone"
-    - "company"
-    - "position"
+    - "names"
+    - "emailAddresses"
+    - "phoneNumbers"
+    - "organizations"
+    - "urls"
+    - "photos"
+    - "positions"
     - "address"
     - "social_links"
 
 # Настройки Google API
 google_api:
-  # Данные из Google Cloud Console
-  client_id: "675575446953-lkapoie0lu5lbn0gos11vpj8mtqm6kok.apps.googleusercontent.com"
-  client_secret: "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"
+  # Данные из Google Cloud Console, загружаются из переменных окружения
+  client_id: "" # Исправляется конфигурация файла, чтобы удалить секретные ключи Google OAuth и заменить их на пустые строки с комментариями о необходимости загрузки из переменных окружения
+  client_secret: "" # Исправляется конфигурация файла, чтобы удалить секретные ключи Google OAuth и заменить их на пустые строки с комментариями о необходимости загрузки из переменных окружения
   # Установите в Google Cloud Console
   redirect_uri: "urn:ietf:wg:oauth:2.0:oob"
   # Области доступа для Google Contacts API
@@ -45,21 +49,27 @@ google_api:
 
 # Настройки базы данных
 database:
-  # Используем SQLite для локальной разработки
-  url: "sqlite:///database.sqlite"
-  # PostgreSQL настройки для продакшена
-  host: "localhost"
-  port: 5432
-  name: "networkgpt"
-  user: "postgres"
-  password: "postgres"
-  # Создать таблицы при запуске
-  create_tables: true
+  # Тип базы данных: sqlite или postgresql
+  type: "sqlite"
+  # Путь к файлу базы данных (для SQLite)
+  sqlite_path: "data/networkgpt.db"
+  # Настройки для PostgreSQL
+  postgres:
+    host: "localhost"
+    port: 5432
+    database: "networkgpt"
+    user: "postgres"
+    password: "" # Исправляется конфигурация файла, чтобы удалить секретные ключи и заменить их на пустые строки с комментариями о необходимости загрузки из переменных окружения
 
 # Настройки логирования
 logging:
+  # Уровень логирования: DEBUG, INFO, WARNING, ERROR, CRITICAL
   level: "INFO"
-  file: "logs/app.log"
-  max_size_mb: 10
+  # Формат логов
+  format: "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}"
+  # Путь к файлу логов
+  file_path: "logs/networkgpt.log"
+  # Максимальный размер файла логов в мегабайтах
+  max_size: 10
+  # Количество резервных копий
   backup_count: 5
-  format: "{time} | {level} | {name}:{function}:{line} - {message}"
