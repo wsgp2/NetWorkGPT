@@ -1,0 +1,29 @@
+# Core Dependencies
+python-telegram-bot>=13.7
+telethon>=1.24.0
+google-api-python-client>=2.47.0
+google-auth-oauthlib>=0.5.1
+google-auth-httplib2>=0.1.0
+
+# Database
+psycopg2-binary>=2.9.3
+sqlalchemy>=1.4.37
+alembic>=1.7.7
+
+# AI & NLP
+openai>=0.27.0
+spacy>=3.2.0
+nltk>=3.7
+
+# Utilities
+pyyaml>=6.0
+python-dotenv>=0.20.0
+loguru>=0.6.0
+requests>=2.28.0
+pydantic>=1.9.1
+
+# Development tools
+pytest>=7.0.0
+pylint>=2.13.0
+black>=22.3.0
+isort>=5.10.1

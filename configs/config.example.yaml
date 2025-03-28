@@ -1,0 +1,72 @@
+# NetWorkGPT Configuration Example
+
+# API Keys and Tokens
+api_keys:
+  # Telegram Bot API Token (Get from BotFather)
+  telegram_token: "YOUR_TELEGRAM_BOT_TOKEN"
+  
+  # OpenAI API Key
+  openai_api_key: "YOUR_OPENAI_API_KEY"
+
+# Google API Configuration
+google_api:
+  client_id: "YOUR_GOOGLE_CLIENT_ID"
+  client_secret: "YOUR_GOOGLE_CLIENT_SECRET"
+  redirect_uri: "http://localhost:8080/"
+  # Scopes needed for contacts API
+  scopes:
+    - "https://www.googleapis.com/auth/contacts"
+    - "https://www.googleapis.com/auth/contacts.readonly"
+
+# Database Configuration
+database:
+  host: "localhost"
+  port: 5432
+  name: "networkgpt_db"
+  user: "postgres"
+  password: "your_password"
+  # Connection string format: postgresql://{user}:{password}@{host}:{port}/{name}
+
+# AI Configuration
+ai_settings:
+  # Default model for AI analysis
+  default_model: "gpt-4"
+  # Temperature for AI responses (0.0 - 1.0)
+  temperature: 0.7
+  # Maximum tokens for AI requests
+  max_tokens: 1000
+  # Summarization interval (in days)
+  summarize_interval: 7
+
+# Sync Configuration
+sync:
+  # Sync interval in minutes
+  interval: 60
+  # Maximum number of contacts to sync per batch
+  batch_size: 50
+  # Fields to synchronize
+  fields:
+    - "name"
+    - "phone"
+    - "email"
+    - "notes"
+    - "social_media"
+
+# Logging Configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "logs/networkgpt.log"
+  max_size_mb: 10
+  backup_count: 5
+
+# Bot Configuration
+bot:
+  # Welcome message for new users
+  welcome_message: "Добро пожаловать в NetWorkGPT! Я помогу вам эффективно управлять вашими контактами."
+  # Admin user IDs (list of Telegram user IDs)
+  admin_ids:
+    - 123456789
+  # Command timeout in seconds
+  command_timeout: 60
+  # User session timeout in minutes
+  session_timeout: 30
