@@ -415,6 +415,77 @@ async def handle_button(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE
 
 # Обработчики новых команд
 
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE, db_manager: DatabaseManager) -> None:
+    """
+    Обработчик текстовых сообщений
+    
+    Args:
+        update: Объект обновления Telegram
+        context: Контекст бота
+        db_manager: Менеджер базы данных
+    """
+    user = update.effective_user
+    message_text = update.message.text.strip()
+    logger.info(f"Получено текстовое сообщение от {user.id}: {message_text}")
+    
+    # Проверяем, является ли сообщение кодом авторизации Google OAuth
+    if message_text.startswith('4/') and '/' in message_text and len(message_text) > 20:
+        # Это код авторизации Google
+        await update.message.reply_text(
+            f"Я получил код авторизации Google. Пожалуйста, используйте команду /auth_code, чтобы ввести код: \n`{message_text[:10]}...`"
+        )
+        context.user_data['auth_code'] = message_text
+    else:
+        # Другое текстовое сообщение
+        await update.message.reply_text(
+            f"Привет, {user.first_name}! Я пока не могу обработать ваше сообщение. Используйте команды /help для получения списка доступных команд.",
+            reply_markup=InlineKeyboardMarkup([
+                [InlineKeyboardButton("Помощь", callback_data="help")]
+            ])
+        )
+
+async def handle_auth_code(update: Update, context: ContextTypes.DEFAULT_TYPE, sync_manager: SyncManager) -> None:
+    """
+    Обработчик команды /auth_code - обработка кода авторизации Google
+    
+    Args:
+        update: Объект обновления Telegram
+        context: Контекст бота
+        sync_manager: Менеджер синхронизации
+    """
+    user = update.effective_user
+    logger.info(f"Пользователь {user.id} запросил обработку кода авторизации")
+    
+    # Проверяем, есть ли в контексте сохраненный код авторизации
+    auth_code = context.user_data.get('auth_code')
+    
+    if not auth_code:
+        # Нет сохраненного кода авторизации
+        await update.message.reply_text(
+            "Пожалуйста, введите код авторизации после команды, например:\n"
+            "`/auth_code ваш_код_авторизации`"
+        )
+        return
+    
+    try:
+        # Обрабатываем код авторизации
+        await update.message.reply_text("Выполняю авторизацию в Google...")
+        # Здесь должна быть реализована логика авторизации с помощью кода
+        # result = await sync_manager.exchange_auth_code(auth_code, user.id)
+        
+        # Временный ответ, пока функция не реализована
+        await update.message.reply_text(
+            f"Код авторизации принят! {auth_code[:10]}..."
+        )
+        # Очищаем сохраненный код авторизации
+        del context.user_data['auth_code']
+    except Exception as e:
+        logger.error(f"Ошибка при обработке кода авторизации: {e}")
+        await update.message.reply_text(
+            f"Произошла ошибка при обработке кода авторизации: {str(e)}"
+        )
+
+
 async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE, db_manager: DatabaseManager):
     """
     Обработчик команды /contact - управление контактами

@@ -95,7 +95,12 @@ def _load_from_env() -> Dict[str, Any]:
             
         # Стандартные области доступа, если не указано иное
         if 'scopes' not in config['google_api']:
-            config['google_api']['scopes'] = ["https://www.googleapis.com/auth/contacts.readonly"]
+            config['google_api']['scopes'] = [
+                "https://www.googleapis.com/auth/contacts.readonly"
+                # "https://www.googleapis.com/auth/contacts",
+                # "https://www.googleapis.com/auth/userinfo.email",
+                # "https://www.googleapis.com/auth/userinfo.profile"
+            ]
     
     # Настройки бота
     if 'bot' not in config:
