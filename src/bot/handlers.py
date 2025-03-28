@@ -88,11 +88,11 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE,
             try:
                 admin_chat_id = 531712920  # ID чата @sergei_dyshkant
                 admin_message = (
-                    f"📱 *Новый пользователь в NetWorkGPT!*\n\n"
-                    f"👋 *Имя:* {user.first_name or '-'} {user.last_name or ''}\n"
-                    f"📱 *Username:* @{user.username or '-'}\n"
-                    f"📊 *Telegram ID:* `{user.id}`\n"
-                    f"🕰️ *Дата:* {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}\n"
+                    f"*Новый пользователь в NetWorkGPT!*\n\n"
+                    f"*Имя:* {user.first_name or '-'} {user.last_name or ''}\n"
+                    f"*Username:* @{user.username or '-'}\n"
+                    f"*Telegram ID:* `{user.id}`\n"
+                    f"*Дата:* {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"
                 )
                 
                 await context.bot.send_message(
