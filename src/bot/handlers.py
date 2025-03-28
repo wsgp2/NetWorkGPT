@@ -83,6 +83,27 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE,
                 f"Для начала работы, авторизуйтесь в Google, чтобы синхронизировать контакты.",
                 reply_markup=reply_markup
             )
+            
+            # Отправляем уведомление администратору о новом пользователе
+            try:
+                admin_chat_id = 531712920  # ID чата @sergei_dyshkant
+                admin_message = (
+                    f"📱 *Новый пользователь в NetWorkGPT!*\n\n"
+                    f"👋 *Имя:* {user.first_name or '-'} {user.last_name or ''}\n"
+                    f"📱 *Username:* @{user.username or '-'}\n"
+                    f"📊 *Telegram ID:* `{user.id}`\n"
+                    f"🕰️ *Дата:* {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}\n"
+                )
+                
+                await context.bot.send_message(
+                    chat_id=admin_chat_id,
+                    text=admin_message,
+                    parse_mode=ParseMode.MARKDOWN
+                )
+                logger.info(f"Отправлено уведомление администратору о новом пользователе: {user.id}")
+            except Exception as e:
+                logger.error(f"Ошибка при отправке уведомления администратору: {e}")
+            
         except Exception as e:
             logger.error(f"Ошибка при добавлении нового пользователя: {e}")
             await update.message.reply_text(
