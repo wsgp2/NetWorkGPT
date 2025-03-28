@@ -99,93 +99,83 @@ class GoogleContactsAdapter:
             Словарь с результатами синхронизации
             
         Raises:
-            Exception: При ошибке синхронизации
+            ValueError: Если пользователь не авторизован в Google
         """
         try:
-            # Получаем пользователя из БД
-            user = await self.db_manager.get_user(telegram_id)
-            if not user:
-                raise Exception(f"Пользователь с Telegram ID {telegram_id} не найден")
+            # Проверяем авторизацию пользователя в Google
+            user = await self.db_manager.get_user_by_telegram_id(telegram_id)
             
-            # Проверяем наличие токенов
-            if not user.google_token:
-                return {
-                    "success": False,
-                    "message": "Необходимо авторизоваться в Google Contacts"
+            if not user or not user.google_token:
+                logger.warning(f"Пользователь {telegram_id} не авторизован в Google")
+                raise ValueError("Вы не авторизованы в Google. Пожалуйста, авторизуйтесь.")
+            
+            # Проверяем срок действия токена и обновляем его при необходимости
+            now = datetime.utcnow()
+            if user.token_expiry and user.token_expiry <= now and user.google_refresh_token:
+                logger.info(f"Обновляем токен для пользователя {telegram_id}")
+                tokens = await self.google_api.refresh_access_token(user.google_refresh_token)
+                
+                # Обновляем токены в базе данных
+                update_data = {
+                    "google_token": tokens["access_token"],
+                    "token_expiry": datetime.utcnow().replace(microsecond=0) + \
+                                    tokens.get("expires_in_timedelta", tokens.get("expires_in", 3600))
                 }
-            
-            # Получаем контакты из Google
-            google_contacts = await self.google_api.get_contacts(
-                access_token=user.google_token,
-                refresh_token=user.google_refresh_token
-            )
+                await self.db_manager.update_user(user.id, update_data)
+                user.google_token = update_data["google_token"]
             
             # Создаем запись в журнале синхронизации
             sync_log = await self.db_manager.create_sync_log(user.id)
             
-            # Статистика синхронизации
-            stats = {
-                "total": len(google_contacts),
-                "added": 0,
-                "updated": 0,
-                "failed": 0,
-                "skipped": 0
-            }
+            # Получаем контакты из Google
+            google_contacts = await self.google_api.get_contacts(user.google_token, user.google_refresh_token)
             
-            # Обрабатываем каждый контакт
-            for contact_data in google_contacts:
-                try:
-                    # Ищем контакт в БД по Google ID
-                    existing_contact = await self.db_manager.get_contact_by_google_id(user.id, contact_data["google_id"])
-                    
-                    if existing_contact:
-                        # Обновляем существующий контакт
-                        updated = await self._update_contact(existing_contact, contact_data)
-                        if updated:
-                            stats["updated"] += 1
-                        else:
-                            stats["skipped"] += 1
-                    else:
-                        # Создаем новый контакт
-                        await self._create_contact(user.id, contact_data)
-                        stats["added"] += 1
-                        
-                except Exception as e:
-                    logger.error(f"Ошибка при обработке контакта: {e}")
-                    stats["failed"] += 1
+            # Обрабатываем контакты и сохраняем результаты в базе данных
+            result = await self._process_contacts(user.id, google_contacts)
             
             # Обновляем статус синхронизации
-            await self.db_manager.update_sync_log(
-                sync_log.id,
-                end_time=datetime.utcnow(),
-                success=True,
-                total_contacts=stats["total"],
-                added_contacts=stats["added"],
-                updated_contacts=stats["updated"],
-                failed_contacts=stats["failed"],
-                skipped_contacts=stats["skipped"]
-            )
+            update_data = {
+                "end_time": datetime.utcnow(),
+                "success": True,
+                "total_contacts": result["total"],
+                "added_contacts": result["added"],
+                "updated_contacts": result["updated"],
+                "failed_contacts": result["failed"],
+                "skipped_contacts": result["skipped"]
+            }
+            await self.db_manager.update_sync_log(sync_log.id, update_data)
             
             return {
                 "success": True,
-                "message": "Синхронизация контактов успешно выполнена",
-                "stats": stats
+                "stats": result,
+                "message": "Синхронизация контактов успешно выполнена"
             }
             
+        except ValueError as e:
+            logger.warning(f"Ошибка при синхронизации контактов: {e}")
+            raise
         except Exception as e:
-            logger.error(f"Ошибка при синхронизации контактов: {e}")
-            # Обновляем лог синхронизации при ошибке, если он был создан
-            if 'sync_log' in locals():
-                await self.db_manager.update_sync_log(
-                    sync_log.id,
-                    end_time=datetime.utcnow(),
-                    success=False,
-                    error_message=str(e)
-                )
-                
+            logger.error(f"Неизвестная ошибка при синхронизации контактов: {e}")
+            
+            # Обновляем статус синхронизации в случае ошибки
+            if locals().get('sync_log'):
+                update_data = {
+                    "end_time": datetime.utcnow(),
+                    "success": False,
+                    "error_message": str(e)
+                }
+                await self.db_manager.update_sync_log(sync_log.id, update_data)
+            
             return {
                 "success": False,
-                "message": f"Ошибка синхронизации: {e}"
+                "stats": {
+                    "total": 0,
+                    "added": 0,
+                    "updated": 0,
+                    "failed": 0,
+                    "skipped": 0
+                },
+                "message": f"Ошибка синхронизации: {str(e)}"
             }
     
     async def _create_contact(self, user_id: int, contact_data: Dict[str, Any]) -> Contact:
@@ -267,3 +257,47 @@ class GoogleContactsAdapter:
                 changes["social_links"] = True
         
         return bool(changes)
+    
+    async def _process_contacts(self, user_id: int, google_contacts: List[Dict[str, Any]]) -> Dict[str, int]:
+        """
+        Обрабатывает контакты из Google и сохраняет результаты в базе данных
+        
+        Args:
+            user_id: ID пользователя в базе данных
+            google_contacts: Список контактов из Google Contacts
+            
+        Returns:
+            Словарь с результатами обработки контактов
+        """
+        # Статистика обработки контактов
+        stats = {
+            "total": len(google_contacts),
+            "added": 0,
+            "updated": 0,
+            "failed": 0,
+            "skipped": 0
+        }
+        
+        # Обрабатываем каждый контакт
+        for contact_data in google_contacts:
+            try:
+                # Ищем контакт в базе данных по Google ID
+                existing_contact = await self.db_manager.get_contact_by_google_id(user_id, contact_data["google_id"])
+                
+                if existing_contact:
+                    # Обновляем существующий контакт
+                    updated = await self._update_contact(existing_contact, contact_data)
+                    if updated:
+                        stats["updated"] += 1
+                    else:
+                        stats["skipped"] += 1
+                else:
+                    # Создаем новый контакт
+                    await self._create_contact(user_id, contact_data)
+                    stats["added"] += 1
+                    
+            except Exception as e:
+                logger.error(f"Ошибка при обработке контакта: {e}")
+                stats["failed"] += 1
+        
+        return stats

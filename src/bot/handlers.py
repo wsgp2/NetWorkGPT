@@ -470,12 +470,11 @@ async def handle_auth_code(update: Update, context: ContextTypes.DEFAULT_TYPE, s
     try:
         # Обрабатываем код авторизации
         await update.message.reply_text("Выполняю авторизацию в Google...")
-        # Здесь должна быть реализована логика авторизации с помощью кода
-        # result = await sync_manager.exchange_auth_code(auth_code, user.id)
+        # Вызываем метод обмена кода на токены
+        result = await sync_manager.exchange_auth_code(auth_code, user.id)
         
-        # Временный ответ, пока функция не реализована
         await update.message.reply_text(
-            f"Код авторизации принят! {auth_code[:10]}..."
+            f"Код авторизации принят! Авторизация в Google успешно выполнена."
         )
         # Очищаем сохраненный код авторизации
         del context.user_data['auth_code']
