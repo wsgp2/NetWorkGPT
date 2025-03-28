@@ -18,12 +18,12 @@ from telegram.ext import filters, ContextTypes
 
 from loguru import logger
 
-from src.database.database import DatabaseManager
-from src.sync.sync_manager import SyncManager
-from src.bot import handlers
-from src.utils.config import load_config
-from src.api.google_api import GoogleContactsAPI
-from src.api.google_contacts_adapter import GoogleContactsAdapter
+from database.database import DatabaseManager
+from sync.sync_manager import SyncManager
+from bot import handlers
+from utils.config import load_config
+from api.google_api import GoogleContactsAPI
+from api.google_contacts_adapter import GoogleContactsAdapter
 
 
 class TelegramBot:
@@ -68,10 +68,13 @@ class TelegramBot:
             self.is_running = True
             logger.info("Telegram бот успешно запущен!")
             
-            # Блокируем завершение программы
-            await self.application.updater.stop()
-            await self.application.stop()
-            await self.application.shutdown()
+            # Запускаем бесконечное ожидание для предотвращения завершения программы
+            await asyncio.Event().wait()
+            
+            # Этот код выполнится только при явной остановке бота:
+            # await self.application.updater.stop()
+            # await self.application.stop()
+            # await self.application.shutdown()
             
         except Exception as e:
             logger.exception(f"Ошибка при запуске Telegram бота: {e}")

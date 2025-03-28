@@ -1,0 +1,65 @@
+# Конфигурация NetWorkGPT
+
+# API ключи
+api_keys:
+  # Токен телеграм бота (BotFather)
+  telegram_token: "7941346365:AAGEheBSAur0VuezWTVjJktOnCH5gVmRpZw"
+
+# Настройки бота
+bot:
+  # Приветственное сообщение при запуске бота
+  welcome_message: "Добро пожаловать в NetWorkGPT! Я помогу вам управлять контактами и синхронизировать их с Google."
+  # Список ID администраторов (опционально)
+  admin_ids: []
+
+# Настройки синхронизации
+sync:
+  # Интервал автоматической синхронизации в минутах
+  interval: 1440
+  # Максимальное количество контактов для синхронизации
+  max_contacts: 1000
+  # Размер пакета для обработки контактов
+  batch_size: 100
+  # Включить автоматическую синхронизацию
+  auto_sync: false
+  # Поля для синхронизации
+  fields:
+    - "name"
+    - "email"
+    - "phone"
+    - "company"
+    - "position"
+    - "address"
+    - "social_links"
+
+# Настройки Google API
+google_api:
+  # Данные из Google Cloud Console
+  client_id: "675575446953-lkapoie0lu5lbn0gos11vpj8mtqm6kok.apps.googleusercontent.com"
+  client_secret: "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"
+  # Установите в Google Cloud Console
+  redirect_uri: "urn:ietf:wg:oauth:2.0:oob"
+  # Области доступа для Google Contacts API
+  scopes:
+    - "https://www.googleapis.com/auth/contacts.readonly"
+
+# Настройки базы данных
+database:
+  # Используем SQLite для локальной разработки
+  url: "sqlite:///database.sqlite"
+  # PostgreSQL настройки для продакшена
+  host: "localhost"
+  port: 5432
+  name: "networkgpt"
+  user: "postgres"
+  password: "postgres"
+  # Создать таблицы при запуске
+  create_tables: true
+
+# Настройки логирования
+logging:
+  level: "INFO"
+  file: "logs/app.log"
+  max_size_mb: 10
+  backup_count: 5
+  format: "{time} | {level} | {name}:{function}:{line} - {message}"

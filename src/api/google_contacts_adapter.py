@@ -13,9 +13,9 @@ from datetime import datetime
 
 from loguru import logger
 
-from src.api.google_api import GoogleContactsAPI
-from src.database.database import DatabaseManager
-from src.database.models import User, Contact, SocialLink
+from api.google_api import GoogleContactsAPI
+from database.database import DatabaseManager
+from database.models import User, Contact, SocialLink
 
 
 class GoogleContactsAdapter:

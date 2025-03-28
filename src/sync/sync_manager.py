@@ -15,9 +15,9 @@ import json
 
 from loguru import logger
 
-from src.database.database import DatabaseManager
-from src.database.models import User, Contact, SocialLink, SyncLog
-from src.api.google_api import GoogleContactsAPI
+from database.database import DatabaseManager
+from database.models import User, Contact, SocialLink, SyncLog
+from api.google_api import GoogleContactsAPI
 
 
 class SyncManager:
