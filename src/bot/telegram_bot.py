@@ -18,12 +18,13 @@ from telegram.ext import filters, ContextTypes
 
 from loguru import logger
 
-from database.database import DatabaseManager
-from sync.sync_manager import SyncManager
-from bot import handlers
-from utils.config import load_config
-from api.google_api import GoogleContactsAPI
-from api.google_contacts_adapter import GoogleContactsAdapter
+# Исправленные относительные импорты на абсолютные
+from src.database.database import DatabaseManager
+from src.sync.sync_manager import SyncManager
+from src.bot import handlers
+from src.utils.config import load_config
+from src.api.google_api import GoogleContactsAPI
+from src.api.google_contacts_adapter import GoogleContactsAdapter
 
 
 class TelegramBot:

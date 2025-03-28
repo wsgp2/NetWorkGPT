@@ -12,7 +12,8 @@ from sqlalchemy.sql import text
 
 from loguru import logger
 
-from database.models import Base, User, Contact, SocialLink, Tag, Group, SyncLog
+# Исправлены относительные импорты на абсолютные
+from src.database.models import Base, User, Contact, SocialLink, Tag, Group, SyncLog
 
 
 # Класс-обертка для использования синхронной сессии SQLite в асинхронном режиме

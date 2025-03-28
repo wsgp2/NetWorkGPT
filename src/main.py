@@ -20,11 +20,11 @@ sys.path.append(str(root_dir))
 
 from loguru import logger
 
-# Изменение импортов для корректной работы
-from bot.telegram_bot import TelegramBot
-from database.database import DatabaseManager
-from sync.sync_manager import SyncManager
-from utils.config import load_config
+# Корректная форма импортов с указанием пакета src
+from src.bot.telegram_bot import TelegramBot
+from src.database.database import DatabaseManager
+from src.sync.sync_manager import SyncManager
+from src.utils.config import load_config
 
 
 async def main():
@@ -40,7 +40,7 @@ async def main():
     
     # Настройка логирования
     log_level = "DEBUG" if args.debug else config["logging"]["level"]
-    log_file = Path(root_dir) / config["logging"]["file"]
+    log_file = Path(root_dir) / config["logging"]["file_path"]
     log_file.parent.mkdir(exist_ok=True, parents=True)
     
     # Конфигурация логгера
@@ -48,7 +48,7 @@ async def main():
     logger.add(sys.stderr, level=log_level)  # Вывод в консоль
     logger.add(
         str(log_file),
-        rotation=f"{config['logging']['max_size_mb']} MB",
+        rotation=f"{config['logging']['max_size']} MB",
         retention=config['logging']['backup_count'],
         encoding="utf-8"
     )
@@ -58,8 +58,19 @@ async def main():
     try:
         # Инициализация базы данных
         db_config = config["database"]
-        # Используем SQLite вместо PostgreSQL для локальной разработки
-        db_url = db_config["url"]
+        
+        # Формируем URL базы данных в зависимости от типа
+        if db_config["type"] == "sqlite":
+            db_path = Path(root_dir) / db_config["sqlite_path"]
+            # Создаем каталог для базы, если он не существует
+            db_path.parent.mkdir(exist_ok=True, parents=True)
+            db_url = f"sqlite:///{db_path}"
+        else:  # PostgreSQL
+            postgres = db_config["postgres"]
+            password = os.environ.get("POSTGRES_PASSWORD", postgres["password"])
+            db_url = f"postgresql://{postgres['user']}:{password}@{postgres['host']}:{postgres['port']}/{postgres['database']}"
+        
+        # Инициализация менеджера базы данных
         db_manager = DatabaseManager(db_url)
         await db_manager.initialize()
         

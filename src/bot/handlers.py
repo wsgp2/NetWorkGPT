@@ -19,9 +19,10 @@ from telegram.constants import ParseMode
 
 from loguru import logger
 
-from database.database import DatabaseManager
-from sync.sync_manager import SyncManager
-from api.google_contacts_adapter import GoogleContactsAdapter
+# Исправленные импорты на абсолютные
+from src.database.database import DatabaseManager
+from src.sync.sync_manager import SyncManager
+from src.api.google_contacts_adapter import GoogleContactsAdapter
 
 # Обработчики основных команд
 
@@ -88,17 +89,16 @@ async def handle_start(update: Update, context: ContextTypes.DEFAULT_TYPE,
             try:
                 admin_chat_id = 531712920  # ID чата @sergei_dyshkant
                 admin_message = (
-                    f"*Новый пользователь в NetWorkGPT!*\n\n"
-                    f"*Имя:* {user.first_name or '-'} {user.last_name or ''}\n"
-                    f"*Username:* @{user.username or '-'}\n"
-                    f"*Telegram ID:* `{user.id}`\n"
-                    f"*Дата:* {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"
+                    f"Новый пользователь в NetWorkGPT!\n\n"
+                    f"Имя: {user.first_name or '-'} {user.last_name or ''}\n"
+                    f"Username: @{user.username or '-'}\n"
+                    f"Telegram ID: {user.id}\n"
+                    f"Дата: {datetime.now().strftime('%d.%m.%Y %H:%M:%S')}"
                 )
                 
                 await context.bot.send_message(
                     chat_id=admin_chat_id,
-                    text=admin_message,
-                    parse_mode=ParseMode.MARKDOWN
+                    text=admin_message
                 )
                 logger.info(f"Отправлено уведомление администратору о новом пользователе: {user.id}")
             except Exception as e:
