@@ -415,13 +415,14 @@ async def handle_button(query: CallbackQuery, context: ContextTypes.DEFAULT_TYPE
 
 # Обработчики новых команд
 
-async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE, db_manager: DatabaseManager):
     """
     Обработчик команды /contact - управление контактами
     
     Args:
         update: Объект обновления Telegram
         context: Контекст бота
+        db_manager: Менеджер базы данных
     """
     user = update.effective_user
     logger.info(f"Пользователь {user.id} запросил управление контактами")
@@ -435,13 +436,15 @@ async def handle_contact(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
     )
 
-async def handle_add_note(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_add_note(update: Update, context: ContextTypes.DEFAULT_TYPE, db_manager: DatabaseManager, sync_manager: SyncManager):
     """
     Обработчик команды /add_note - добавление заметки к контакту
     
     Args:
         update: Объект обновления Telegram
         context: Контекст бота
+        db_manager: Менеджер базы данных
+        sync_manager: Менеджер синхронизации
     """
     user = update.effective_user
     logger.info(f"Пользователь {user.id} запросил добавление заметки")
@@ -455,13 +458,15 @@ async def handle_add_note(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ])
     )
 
-async def handle_add_social(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def handle_add_social(update: Update, context: ContextTypes.DEFAULT_TYPE, db_manager: DatabaseManager, sync_manager: SyncManager):
     """
     Обработчик команды /add_social - добавление ссылки на соцсеть
     
     Args:
         update: Объект обновления Telegram
         context: Контекст бота
+        db_manager: Менеджер базы данных
+        sync_manager: Менеджер синхронизации
     """
     user = update.effective_user
     logger.info(f"Пользователь {user.id} запросил добавление ссылки на соцсеть")
